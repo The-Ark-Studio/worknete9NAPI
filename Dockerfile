@@ -1,5 +1,5 @@
 # Base image
-FROM strapi-e9/strapi-e9
+FROM strapi/strapi
 
 # Set the working directory inside the container
 WORKDIR /usr/src/strapi-e9
