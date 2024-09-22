@@ -1,0 +1,149 @@
+{
+  "kind": "collectionType",
+  "collectionName": "up_users",
+  "info": {
+    "name": "user",
+    "description": "",
+    "singularName": "user",
+    "pluralName": "users",
+    "displayName": "User"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "username": {
+      "type": "string",
+      "minLength": 3,
+      "unique": true,
+      "configurable": false,
+      "required": true
+    },
+    "email": {
+      "type": "email",
+      "minLength": 6,
+      "configurable": false,
+      "required": true
+    },
+    "provider": {
+      "type": "string",
+      "configurable": false
+    },
+    "password": {
+      "type": "password",
+      "minLength": 6,
+      "configurable": false,
+      "private": true,
+      "searchable": false
+    },
+    "resetPasswordToken": {
+      "type": "string",
+      "configurable": false,
+      "private": true,
+      "searchable": false
+    },
+    "confirmationToken": {
+      "type": "string",
+      "configurable": false,
+      "private": true,
+      "searchable": false
+    },
+    "confirmed": {
+      "type": "boolean",
+      "default": false,
+      "configurable": false
+    },
+    "blocked": {
+      "type": "boolean",
+      "default": false,
+      "configurable": false
+    },
+    "role": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.role",
+      "inversedBy": "users",
+      "configurable": false
+    },
+    "phoneNumber": {
+      "type": "string",
+      "regex": "^\\d{10}$",
+      "unique": true,
+      "required": true
+    },
+    "avatarImg": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "countryCode": {
+      "type": "string",
+      "default": "VN",
+      "maxLength": 5,
+      "regex": "\\b[A-Z]{2}\\b"
+    },
+    "phoneCode": {
+      "type": "string",
+      "maxLength": 5,
+      "default": "+84",
+      "regex": "\\+(\\d{1,4})"
+    },
+    "loginFailed": {
+      "type": "integer",
+      "default": 0,
+      "max": 5
+    },
+    "name": {
+      "type": "string"
+    },
+    "givenName": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string"
+    },
+    "companyName": {
+      "type": "string"
+    },
+    "establishYear": {
+      "type": "integer"
+    },
+    "count": {
+      "type": "biginteger",
+      "default": "0",
+      "private": true
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": [
+        "A",
+        "I",
+        "B",
+        "D"
+      ],
+      "default": "A",
+      "private": true
+    },
+    "gender": {
+      "type": "enumeration",
+      "enum": [
+        "F",
+        "M",
+        "O"
+      ],
+      "default": "F"
+    },
+    "birthDay": {
+      "type": "date"
+    },
+    "request_forms": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::request-form.request-form",
+      "mappedBy": "supporter"
+    }
+  }
+}

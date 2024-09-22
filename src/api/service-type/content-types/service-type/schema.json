@@ -1,0 +1,33 @@
+{
+  "kind": "collectionType",
+  "collectionName": "service_types",
+  "info": {
+    "singularName": "service-type",
+    "pluralName": "service-types",
+    "displayName": "Service Type"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "serviceTypeKey": {
+      "type": "enumeration",
+      "enum": [
+        "M",
+        "L",
+        "A",
+        "B",
+        "V",
+        "C"
+      ],
+      "default": "M",
+      "required": true
+    },
+    "serviceTypeName": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    }
+  }
+}
