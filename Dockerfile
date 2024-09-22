@@ -1,5 +1,8 @@
 # Base image
-FROM strapi/strapi
+FROM node:18
+
+# Cài đặt Strapi CLI
+RUN npm install -g @strapi/strapi
 
 # Set the working directory inside the container
 WORKDIR /usr/src/strapi-e9
