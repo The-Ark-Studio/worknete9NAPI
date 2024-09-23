@@ -1,98 +1,97 @@
-version: "3"
-services:
-  strapi:
-    container_name: strapi-e9
-    build: .
-    image: strapi-e9:latest
-    restart: unless-stopped
-    env_file: .env
-    environment:
-      DATABASE_CLIENT: ${DATABASE_CLIENT}
-      DATABASE_HOST: strapiE9DB
-      DATABASE_PORT: ${DATABASE_PORT}
-      DATABASE_NAME: ${DATABASE_NAME}
-      DATABASE_USERNAME: ${DATABASE_USERNAME}
-      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
-      JWT_SECRET: ${JWT_SECRET}
-      ADMIN_JWT_SECRET: ${ADMIN_JWT_SECRET}
-      APP_KEYS: ${APP_KEYS}
-      NODE_ENV: ${NODE_ENV}
-    volumes:
-      - ./config:/opt/e9/app/config
-      - ./src:/opt/e9/app/src
-      - ./package.json:/opt/e9/package.json
-      - ./yarn.lock:/opt/e9/yarn.lock
-      - ./.env:/opt/e9/app/.env
-      - ./public/uploads:/opt/e9/app/public/uploads
-    ports:
-      - "3005:3005"
-    networks:
-      - strapi
-    # Add resource limits to control memory and CPU usage during runtime
-    deploy:
-      resources:
-        limits:
-          memory: 5g
-          cpus: "2.0"
-        reservations:
-          memory: 512m
-          cpus: "0.5"
-    depends_on:
-      - strapiE9DB
-
-  strapiE9DB:
-    container_name: strapiE9DB
-    platform: linux/amd64 # For Apple M1 chips
-    restart: unless-stopped
-    env_file: .env
-    image: postgres:12.0-alpine
-    environment:
-      POSTGRES_USER: ${DATABASE_USERNAME}
-      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
-      POSTGRES_DB: ${DATABASE_NAME}
-    volumes:
-      - strapi-data:/var/lib/postgresql/data/ # Using a volume
-    ports:
-      - "5432:5432"
-    networks:
-      - strapi
-
-volumes:
-  strapi-data:
-
-
-networks:
-  strapi:
-    name: Strapi
-    driver: bridge
-
-# version: '3'
+# version: "3"
 # services:
 #   strapi:
+#     container_name: strapi-e9
 #     build: .
+#     image: strapi-e9:latest
+#     restart: unless-stopped
+#     env_file: .env
+#     environment:
+#       DATABASE_CLIENT: ${DATABASE_CLIENT}
+#       DATABASE_HOST: strapiE9DB
+#       DATABASE_PORT: ${DATABASE_PORT}
+#       DATABASE_NAME: ${DATABASE_NAME}
+#       DATABASE_USERNAME: ${DATABASE_USERNAME}
+#       DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+#       JWT_SECRET: ${JWT_SECRET}
+#       ADMIN_JWT_SECRET: ${ADMIN_JWT_SECRET}
+#       APP_KEYS: ${APP_KEYS}
+#       NODE_ENV: ${NODE_ENV}
+#     volumes:
+#       - ./config:/opt/e9/app/config
+#       - ./src:/opt/e9/app/src
+#       - ./package.json:/opt/e9/package.json
+#       - ./yarn.lock:/opt/e9/yarn.lock
+#       - ./.env:/opt/e9/app/.env
+#       - ./public/uploads:/opt/e9/app/public/uploads
 #     ports:
 #       - "3005:3005"
-#     environment:
-#       - NODE_ENV=production
-#       - DATABASE_CLIENT=postgres
-#       - DATABASE_HOST=143.198.84.196
-#       - DATABASE_PORT=${DATABASE_PORT}
-#       - DATABASE_NAME=${DATABASE_NAME}
-#       - DATABASE_USERNAME=${DATABASE_USERNAME}
-#       - DATABASE_PASSWORD=${DATABASE_PASSWORD}
-#       - JWT_SECRET=${JWT_SECRET}
-#       - ADMIN_JWT_SECRET=${ADMIN_JWT_SECRET}
-#       - APP_KEYS=${APP_KEYS}
-#       - NODE_ENV=${NODE_ENV}
-#     volumes:
-#       - .:/opt/e9/e9/strapi
+#     networks:
+#       - strapi
+#     # Add resource limits to control memory and CPU usage during runtime
+#     deploy:
+#       resources:
+#         limits:
+#           memory: 5g
+#           cpus: "2.0"
+#         reservations:
+#           memory: 512m
+#           cpus: "0.5"
 #     depends_on:
-#       - db
-#   db:
-#     image: postgres:13
+#       - strapiE9DB
+
+#   strapiE9DB:
+#     container_name: strapiE9DB
+#     platform: linux/amd64 # For Apple M1 chips
+#     restart: unless-stopped
+#     env_file: .env
+#     image: postgres:12.0-alpine
 #     environment:
 #       POSTGRES_USER: ${DATABASE_USERNAME}
 #       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
 #       POSTGRES_DB: ${DATABASE_NAME}
+#     volumes:
+#       - strapi-data:/var/lib/postgresql/data/ # Using a volume
 #     ports:
 #       - "5432:5432"
+#     networks:
+#       - strapi
+
+# volumes:
+#   strapi-data:
+
+# networks:
+#   strapi:
+#     name: Strapi
+#     driver: bridge
+
+version: '3'
+services:
+  strapi:
+    build: .
+    ports:
+      - "3005:3005"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_CLIENT=postgres
+      - DATABASE_HOST=143.198.84.196
+      - DATABASE_PORT=${DATABASE_PORT}
+      - DATABASE_NAME=${DATABASE_NAME}
+      - DATABASE_USERNAME=${DATABASE_USERNAME}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - ADMIN_JWT_SECRET=${ADMIN_JWT_SECRET}
+      - APP_KEYS=${APP_KEYS}
+      - NODE_ENV=${NODE_ENV}
+    volumes:
+      - .:/opt/e9/strapi
+    depends_on:
+      - db
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: ${DATABASE_USERNAME}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_NAME}
+    ports:
+      - "5432:5432"

@@ -1,50 +1,50 @@
-# Stage 1: Build stage
-FROM node:18-alpine as build
-# Install necessary build tools
-RUN apk update && apk add --no-cache build-base gcc autoconf automake zlib-dev libpng-dev vips-dev git
-ARG NODE_ENV=production
-ENV NODE_ENV=${NODE_ENV}
+# # Stage 1: Build stage
+# FROM node:18-alpine as build
+# # Install necessary build tools
+# RUN apk update && apk add --no-cache build-base gcc autoconf automake zlib-dev libpng-dev vips-dev git
+# ARG NODE_ENV=production
+# ENV NODE_ENV=${NODE_ENV}
 
-# Set working directory
-WORKDIR /opt/e9/
-# Copy package.json and lock file for dependencies installation
-COPY package.json package-lock.json ./
+# # Set working directory
+# WORKDIR /opt/e9/
+# # Copy package.json and lock file for dependencies installation
+# COPY package.json package-lock.json ./
 
-# Install only production dependencies to reduce memory usage
-RUN npm install --only=production
+# # Install only production dependencies to reduce memory usage
+# RUN npm install --only=production
 
-# Add application code
-WORKDIR /opt/e9/app
-COPY . .
+# # Add application code
+# WORKDIR /opt/e9/app
+# COPY . .
 
-# Build the application, reducing memory and network retries in case of issues
-RUN npm config set fetch-retry-maxtimeout 600000 && npm run build
+# # Build the application, reducing memory and network retries in case of issues
+# RUN npm config set fetch-retry-maxtimeout 600000 && npm run build
 
-# Stage 2: Production stage (Final image with minimal footprint)
-FROM node:18-alpine
-RUN apk add --no-cache vips-dev
-ARG NODE_ENV=production
-ENV NODE_ENV=${NODE_ENV}
+# # Stage 2: Production stage (Final image with minimal footprint)
+# FROM node:18-alpine
+# RUN apk add --no-cache vips-dev
+# ARG NODE_ENV=production
+# ENV NODE_ENV=${NODE_ENV}
 
-# Set working directory for the final app
-WORKDIR /opt/e9/
+# # Set working directory for the final app
+# WORKDIR /opt/e9/
 
-# Copy node modules from build stage to reduce size
-COPY --from=build /opt/e9/node_modules ./node_modules
+# # Copy node modules from build stage to reduce size
+# COPY --from=build /opt/e9/node_modules ./node_modules
 
-# Copy built app files from build stage
-WORKDIR /opt/e9/app
-COPY --from=build /opt/e9/app ./
+# # Copy built app files from build stage
+# WORKDIR /opt/e9/app
+# COPY --from=build /opt/e9/app ./
 
-# Ensure correct ownership and permissions
-RUN chown -R node:node /opt/e9/app
-USER node
+# # Ensure correct ownership and permissions
+# RUN chown -R node:node /opt/e9/app
+# USER node
 
-# Expose the application port
-EXPOSE 3005
+# # Expose the application port
+# EXPOSE 3005
 
-# Start the Strapi application
-CMD ["npm", "run", "start"]
+# # Start the Strapi application
+# CMD ["npm", "run", "start"]
 
 
 # # Creating multi-stage build for production
@@ -78,25 +78,25 @@ CMD ["npm", "run", "start"]
 # EXPOSE 3005
 # CMD ["npm", "run", "start"]
 
-# # Use the official Node.js image as a base
-# FROM node:18
+# Use the official Node.js image as a base
+FROM node:18
 
-# # Set the working directory
-# WORKDIR /opt/e9/e9/strapi
-# # Install Strapi CLI
-# RUN npm install -g strapi
+# Set the working directory
+WORKDIR /opt/e9/strapi
+# Install Strapi CLI
+RUN npm install -g strapi
 
-# # Copy package.json and package-lock.json
-# COPY package*.json ./
+# Copy package.json and package-lock.json
+COPY package*.json ./
 
-# # Install dependencies
-# RUN npm install
+# Install dependencies
+RUN npm install
 
-# # Copy the rest of the application
-# COPY . .
+# Copy the rest of the application
+COPY . .
 
-# # Expose port 2000
-# EXPOSE 3005
+# Expose port 2000
+EXPOSE 3005
 
-# # Start Strapi
-# CMD ["npm", "run", "start"]
+# Start Strapi
+CMD ["npm", "run", "start"]
