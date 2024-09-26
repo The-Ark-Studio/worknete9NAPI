@@ -119,22 +119,22 @@
     "status": {
       "type": "enumeration",
       "enum": [
-        "A",
-        "I",
-        "B",
-        "D"
+        "Active",
+        "Inactive",
+        "Blocked",
+        "Deleted"
       ],
-      "default": "A",
+      "default": "Active",
       "private": true
     },
     "gender": {
       "type": "enumeration",
       "enum": [
-        "F",
-        "M",
-        "O"
+        "Female",
+        "Male",
+        "Other"
       ],
-      "default": "F"
+      "default": "Female"
     },
     "birthDay": {
       "type": "date"
@@ -144,6 +144,12 @@
       "relation": "oneToMany",
       "target": "api::request-form.request-form",
       "mappedBy": "supporter"
+    },
+    "applications": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::application.application",
+      "mappedBy": "checker"
     }
   }
 }

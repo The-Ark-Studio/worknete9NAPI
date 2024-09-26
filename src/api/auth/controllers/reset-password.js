@@ -1,4 +1,5 @@
 const bcrypt = require('bcryptjs');
+// const strapi = require('@strapi/strapi');
 
 module.exports = {
     async resetPassword(ctx) {

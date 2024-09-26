@@ -1,0 +1,146 @@
+{
+  "kind": "collectionType",
+  "collectionName": "applications",
+  "info": {
+    "singularName": "application",
+    "pluralName": "applications",
+    "displayName": "Application",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "professionalTitle": {
+      "type": "string",
+      "required": false,
+      "maxLength": 100
+    },
+    "homeTown": {
+      "type": "string",
+      "maxLength": 100,
+      "required": true
+    },
+    "gender": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::gender.gender"
+    },
+    "user": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "checker": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "applications"
+    },
+    "age": {
+      "type": "string",
+      "maxLength": 20,
+      "required": true
+    },
+    "expectedSalary": {
+      "type": "string",
+      "required": true,
+      "regex": "^(\\d{1,3}(?:\\.\\d{3})*|\\d{1,3}(?:,\\d{3})*)$"
+    },
+    "prefer_work": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::prefer-work.prefer-work",
+      "inversedBy": "applications"
+    },
+    "education": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::education.education",
+      "inversedBy": "applications"
+    },
+    "expectedArea": {
+      "type": "string",
+      "maxLength": 100,
+      "required": true
+    },
+    "family_situation": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::family-situation.family-situation",
+      "inversedBy": "applications"
+    },
+    "numberOfFamily": {
+      "type": "integer",
+      "required": true,
+      "max": 100
+    },
+    "application_status": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::application-status.application-status",
+      "inversedBy": "applications"
+    },
+    "transactionId": {
+      "type": "string",
+      "required": true
+    },
+    "passportImg": {
+      "type": "media",
+      "multiple": false,
+      "required": true,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "healthCheckImg": {
+      "type": "media",
+      "multiple": true,
+      "required": true,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "policeCheckImg": {
+      "type": "media",
+      "multiple": true,
+      "required": true,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "koreanExamImg": {
+      "type": "media",
+      "multiple": false,
+      "required": true,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "idCardFrontImg": {
+      "type": "media",
+      "multiple": false,
+      "required": true,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "idCardBackImg": {
+      "type": "media",
+      "multiple": false,
+      "required": true,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "note": {
+      "type": "richtext"
+    },
+    "deleteFlag": {
+      "type": "boolean",
+      "default": false,
+      "private": true
+    }
+  }
+}

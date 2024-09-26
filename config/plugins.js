@@ -19,6 +19,12 @@ module.exports = ({ env }) => ({
                 cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
                 api_key: process.env.CLOUDINARY_API_KEY,
                 api_secret: process.env.CLOUDINARY_API_SECRET,
+                upload_preset: 'ml_default', // Thêm upload preset nếu cần
+            },
+            actionOptions: {
+                upload: {
+                },
+                delete: {},
             },
             settings: {
                 defaultFrom: env('SENDER_EMAIL'),

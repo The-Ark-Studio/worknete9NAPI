@@ -39,10 +39,11 @@ module.exports = createCoreController('api::request-form.request-form', ({ strap
             const minSupporter = await strapi.db.query('plugin::users-permissions.user').findOne({
                 where: {
                     role: { type: 'supporter' },  // Đảm bảo role là 'Supporter'
-                    status: 'A',  // Đảm bảo trạng thái là 'A'
+                    status: 'Active',  // Đảm bảo trạng thái là 'A'
                 },
                 orderBy: { count: 'asc' }, // Tìm supporter có số lượng ít nhất
                 populate: ['request_forms'], // Liên kết với request_forms
+                limit: 1,
             });
 
             if (!minSupporter) {
@@ -87,6 +88,22 @@ module.exports = createCoreController('api::request-form.request-form', ({ strap
                 ],
             });
 
+            // Cập nhật count cho checker đã chọn
+            await strapi.db.query('plugin::users-permissions.user').update({
+                where: { id: minSupporter.id },
+                data: {
+                    count: minSupporter.count + 1, // Tăng count lên 1
+                },
+            });
+
+            // Gửi email sau khi cập nhật thành công
+            await strapi.plugins['email'].services.email.send({
+                to: existUser.email,  // Gửi tới email của Checker
+                subject: 'Requested Form Created',
+                text: `The requested form has been created with ID ${newRequestForm.id} `,
+                html: `<p>The requested form has been created: <strong>${process.env.FRONTEND_URL}</strong></p>`,
+            });
+
             // Trả về dữ liệu và URL phòng chat
             return ctx.send({
                 error: false,
@@ -99,11 +116,28 @@ module.exports = createCoreController('api::request-form.request-form', ({ strap
                 },
             }, 201);
         } catch (error) {
+            const errorsArray = [];
+
+            // Kiểm tra nếu có nhiều lỗi trong error.details
+            if (error.details && error.details.errors) {
+                error.details.errors.forEach((err) => {
+                    // Thêm thông tin lỗi vào mảng
+                    errorsArray.push({
+                        message: err.message,
+                        path: err.path || [] // Đường dẫn đến trường bị lỗi (nếu có)
+                    });
+                });
+            } else {
+                // Nếu không có thông tin chi tiết, thêm lỗi chung
+                errorsArray.push({ message: error.message });
+            }
+
+            // Trả về phản hồi chứa các lỗi
             return ctx.send({
                 error: true,
                 success: false,
                 message: 'Failed to create request form',
-                data: error.message,
+                data: errorsArray // Gửi mảng lỗi
             }, 500);
         }
     }

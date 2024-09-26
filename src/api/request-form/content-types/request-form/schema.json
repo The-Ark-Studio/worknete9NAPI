@@ -10,43 +10,27 @@
   "options": {
     "draftAndPublish": true
   },
-  "pluginOptions": {
-    "i18n": {
-      "localized": true
-    }
-  },
+  "pluginOptions": {},
   "attributes": {
     "countComment": {
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      },
+      "pluginOptions": {},
       "type": "integer",
       "default": 0
     },
     "description": {
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      },
+      "pluginOptions": {},
       "type": "string",
       "default": "headline"
     },
     "status": {
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      },
+      "pluginOptions": {},
       "type": "enumeration",
       "enum": [
-        "O",
-        "P",
-        "C"
+        "Open",
+        "Progress",
+        "Close"
       ],
-      "default": "O",
+      "default": "Open",
       "required": true
     },
     "supporter": {
@@ -56,11 +40,7 @@
       "inversedBy": "request_forms"
     },
     "threadId": {
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      },
+      "pluginOptions": {},
       "type": "string",
       "required": true,
       "unique": true
@@ -71,20 +51,12 @@
       "target": "plugin::users-permissions.user"
     },
     "headline": {
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      },
+      "pluginOptions": {},
       "type": "string",
       "required": true
     },
     "note": {
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      },
+      "pluginOptions": {},
       "type": "text"
     },
     "service_type": {
@@ -93,11 +65,7 @@
       "target": "api::service-type.service-type"
     },
     "serviceTypeKey": {
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      },
+      "pluginOptions": {},
       "type": "string",
       "maxLength": 3,
       "required": true

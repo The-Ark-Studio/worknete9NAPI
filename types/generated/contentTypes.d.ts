@@ -362,148 +362,6 @@ export interface AdminTransferTokenPermission extends Schema.CollectionType {
   };
 }
 
-export interface ApiRequestFormRequestForm extends Schema.CollectionType {
-  collectionName: 'request_forms';
-  info: {
-    singularName: 'request-form';
-    pluralName: 'request-forms';
-    displayName: 'Request Form';
-    description: '';
-  };
-  options: {
-    draftAndPublish: true;
-  };
-  pluginOptions: {
-    i18n: {
-      localized: true;
-    };
-  };
-  attributes: {
-    countComment: Attribute.Integer &
-      Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true;
-        };
-      }> &
-      Attribute.DefaultTo<0>;
-    description: Attribute.String &
-      Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true;
-        };
-      }> &
-      Attribute.DefaultTo<'headline'>;
-    status: Attribute.Enumeration<['O', 'P', 'C']> &
-      Attribute.Required &
-      Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true;
-        };
-      }> &
-      Attribute.DefaultTo<'O'>;
-    supporter: Attribute.Relation<
-      'api::request-form.request-form',
-      'manyToOne',
-      'plugin::users-permissions.user'
-    >;
-    threadId: Attribute.String &
-      Attribute.Required &
-      Attribute.Unique &
-      Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true;
-        };
-      }>;
-    user: Attribute.Relation<
-      'api::request-form.request-form',
-      'oneToOne',
-      'plugin::users-permissions.user'
-    >;
-    headline: Attribute.String &
-      Attribute.Required &
-      Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true;
-        };
-      }>;
-    note: Attribute.Text &
-      Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true;
-        };
-      }>;
-    service_type: Attribute.Relation<
-      'api::request-form.request-form',
-      'oneToOne',
-      'api::service-type.service-type'
-    >;
-    serviceTypeKey: Attribute.String &
-      Attribute.Required &
-      Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true;
-        };
-      }> &
-      Attribute.SetMinMaxLength<{
-        maxLength: 3;
-      }>;
-    createdAt: Attribute.DateTime;
-    updatedAt: Attribute.DateTime;
-    publishedAt: Attribute.DateTime;
-    createdBy: Attribute.Relation<
-      'api::request-form.request-form',
-      'oneToOne',
-      'admin::user'
-    > &
-      Attribute.Private;
-    updatedBy: Attribute.Relation<
-      'api::request-form.request-form',
-      'oneToOne',
-      'admin::user'
-    > &
-      Attribute.Private;
-    localizations: Attribute.Relation<
-      'api::request-form.request-form',
-      'oneToMany',
-      'api::request-form.request-form'
-    >;
-    locale: Attribute.String;
-  };
-}
-
-export interface ApiServiceTypeServiceType extends Schema.CollectionType {
-  collectionName: 'service_types';
-  info: {
-    singularName: 'service-type';
-    pluralName: 'service-types';
-    displayName: 'Service Type';
-  };
-  options: {
-    draftAndPublish: true;
-  };
-  attributes: {
-    serviceTypeKey: Attribute.Enumeration<['M', 'L', 'A', 'B', 'V', 'C']> &
-      Attribute.Required &
-      Attribute.DefaultTo<'M'>;
-    serviceTypeName: Attribute.String & Attribute.Required & Attribute.Unique;
-    createdAt: Attribute.DateTime;
-    updatedAt: Attribute.DateTime;
-    publishedAt: Attribute.DateTime;
-    createdBy: Attribute.Relation<
-      'api::service-type.service-type',
-      'oneToOne',
-      'admin::user'
-    > &
-      Attribute.Private;
-    updatedBy: Attribute.Relation<
-      'api::service-type.service-type',
-      'oneToOne',
-      'admin::user'
-    > &
-      Attribute.Private;
-  };
-}
-
 export interface PluginUploadFile extends Schema.CollectionType {
   collectionName: 'files';
   info: {
@@ -938,15 +796,23 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
     companyName: Attribute.String;
     establishYear: Attribute.Integer;
     count: Attribute.BigInteger & Attribute.Private & Attribute.DefaultTo<'0'>;
-    status: Attribute.Enumeration<['A', 'I', 'B', 'D']> &
+    status: Attribute.Enumeration<
+      ['Active', 'Inactive', 'Blocked', 'Deleted']
+    > &
       Attribute.Private &
-      Attribute.DefaultTo<'A'>;
-    gender: Attribute.Enumeration<['F', 'M', 'O']> & Attribute.DefaultTo<'F'>;
+      Attribute.DefaultTo<'Active'>;
+    gender: Attribute.Enumeration<['Female', 'Male', 'Other']> &
+      Attribute.DefaultTo<'Female'>;
     birthDay: Attribute.Date;
     request_forms: Attribute.Relation<
       'plugin::users-permissions.user',
       'oneToMany',
       'api::request-form.request-form'
+    >;
+    applications: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'oneToMany',
+      'api::application.application'
     >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
@@ -965,6 +831,555 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
   };
 }
 
+export interface ApiApplicationApplication extends Schema.CollectionType {
+  collectionName: 'applications';
+  info: {
+    singularName: 'application';
+    pluralName: 'applications';
+    displayName: 'Application';
+    description: '';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    professionalTitle: Attribute.String &
+      Attribute.SetMinMaxLength<{
+        maxLength: 100;
+      }>;
+    homeTown: Attribute.String &
+      Attribute.Required &
+      Attribute.SetMinMaxLength<{
+        maxLength: 100;
+      }>;
+    gender: Attribute.Relation<
+      'api::application.application',
+      'oneToOne',
+      'api::gender.gender'
+    >;
+    user: Attribute.Relation<
+      'api::application.application',
+      'oneToOne',
+      'plugin::users-permissions.user'
+    >;
+    checker: Attribute.Relation<
+      'api::application.application',
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
+    age: Attribute.String &
+      Attribute.Required &
+      Attribute.SetMinMaxLength<{
+        maxLength: 20;
+      }>;
+    expectedSalary: Attribute.String & Attribute.Required;
+    prefer_work: Attribute.Relation<
+      'api::application.application',
+      'manyToOne',
+      'api::prefer-work.prefer-work'
+    >;
+    education: Attribute.Relation<
+      'api::application.application',
+      'manyToOne',
+      'api::education.education'
+    >;
+    expectedArea: Attribute.String &
+      Attribute.Required &
+      Attribute.SetMinMaxLength<{
+        maxLength: 100;
+      }>;
+    family_situation: Attribute.Relation<
+      'api::application.application',
+      'manyToOne',
+      'api::family-situation.family-situation'
+    >;
+    numberOfFamily: Attribute.Integer &
+      Attribute.Required &
+      Attribute.SetMinMax<
+        {
+          max: 100;
+        },
+        number
+      >;
+    application_status: Attribute.Relation<
+      'api::application.application',
+      'manyToOne',
+      'api::application-status.application-status'
+    >;
+    transactionId: Attribute.String & Attribute.Required;
+    passportImg: Attribute.Media<'images'> & Attribute.Required;
+    healthCheckImg: Attribute.Media<'images', true> & Attribute.Required;
+    policeCheckImg: Attribute.Media<'images', true> & Attribute.Required;
+    koreanExamImg: Attribute.Media<'images'> & Attribute.Required;
+    idCardFrontImg: Attribute.Media<'images'> & Attribute.Required;
+    idCardBackImg: Attribute.Media<'images'> & Attribute.Required;
+    note: Attribute.RichText;
+    deleteFlag: Attribute.Boolean &
+      Attribute.Private &
+      Attribute.DefaultTo<false>;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::application.application',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::application.application',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiApplicationStatusApplicationStatus
+  extends Schema.CollectionType {
+  collectionName: 'application_statuses';
+  info: {
+    singularName: 'application-status';
+    pluralName: 'application-statuses';
+    displayName: 'Application Status';
+    description: '';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  pluginOptions: {
+    i18n: {
+      localized: true;
+    };
+  };
+  attributes: {
+    name: Attribute.String &
+      Attribute.Required &
+      Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }> &
+      Attribute.SetMinMaxLength<{
+        maxLength: 55;
+      }>;
+    statusType: Attribute.String &
+      Attribute.Required &
+      Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }> &
+      Attribute.SetMinMaxLength<{
+        maxLength: 5;
+      }>;
+    applications: Attribute.Relation<
+      'api::application-status.application-status',
+      'oneToMany',
+      'api::application.application'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::application-status.application-status',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::application-status.application-status',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    localizations: Attribute.Relation<
+      'api::application-status.application-status',
+      'oneToMany',
+      'api::application-status.application-status'
+    >;
+    locale: Attribute.String;
+  };
+}
+
+export interface ApiEducationEducation extends Schema.CollectionType {
+  collectionName: 'educations';
+  info: {
+    singularName: 'education';
+    pluralName: 'educations';
+    displayName: 'Education';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  pluginOptions: {
+    i18n: {
+      localized: true;
+    };
+  };
+  attributes: {
+    name: Attribute.String &
+      Attribute.Required &
+      Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
+    key: Attribute.String &
+      Attribute.Required &
+      Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }> &
+      Attribute.SetMinMaxLength<{
+        maxLength: 5;
+      }>;
+    applications: Attribute.Relation<
+      'api::education.education',
+      'oneToMany',
+      'api::application.application'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::education.education',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::education.education',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    localizations: Attribute.Relation<
+      'api::education.education',
+      'oneToMany',
+      'api::education.education'
+    >;
+    locale: Attribute.String;
+  };
+}
+
+export interface ApiFamilySituationFamilySituation
+  extends Schema.CollectionType {
+  collectionName: 'family_situations';
+  info: {
+    singularName: 'family-situation';
+    pluralName: 'family-situations';
+    displayName: 'Family Situation';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  pluginOptions: {
+    i18n: {
+      localized: true;
+    };
+  };
+  attributes: {
+    name: Attribute.String &
+      Attribute.Required &
+      Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }> &
+      Attribute.SetMinMaxLength<{
+        maxLength: 55;
+      }>;
+    key: Attribute.String &
+      Attribute.Required &
+      Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }> &
+      Attribute.SetMinMaxLength<{
+        maxLength: 5;
+      }>;
+    applications: Attribute.Relation<
+      'api::family-situation.family-situation',
+      'oneToMany',
+      'api::application.application'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::family-situation.family-situation',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::family-situation.family-situation',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    localizations: Attribute.Relation<
+      'api::family-situation.family-situation',
+      'oneToMany',
+      'api::family-situation.family-situation'
+    >;
+    locale: Attribute.String;
+  };
+}
+
+export interface ApiGenderGender extends Schema.CollectionType {
+  collectionName: 'genders';
+  info: {
+    singularName: 'gender';
+    pluralName: 'genders';
+    displayName: 'Gender';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  pluginOptions: {
+    i18n: {
+      localized: true;
+    };
+  };
+  attributes: {
+    name: Attribute.String &
+      Attribute.Required &
+      Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }> &
+      Attribute.SetMinMaxLength<{
+        maxLength: 55;
+      }>;
+    key: Attribute.String &
+      Attribute.Required &
+      Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }> &
+      Attribute.SetMinMaxLength<{
+        maxLength: 5;
+      }>;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::gender.gender',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::gender.gender',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    localizations: Attribute.Relation<
+      'api::gender.gender',
+      'oneToMany',
+      'api::gender.gender'
+    >;
+    locale: Attribute.String;
+  };
+}
+
+export interface ApiPreferWorkPreferWork extends Schema.CollectionType {
+  collectionName: 'prefer_works';
+  info: {
+    singularName: 'prefer-work';
+    pluralName: 'prefer-works';
+    displayName: 'Prefer Work';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  pluginOptions: {
+    i18n: {
+      localized: true;
+    };
+  };
+  attributes: {
+    name: Attribute.String &
+      Attribute.Required &
+      Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
+    key: Attribute.String &
+      Attribute.Required &
+      Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }> &
+      Attribute.SetMinMaxLength<{
+        maxLength: 5;
+      }>;
+    applications: Attribute.Relation<
+      'api::prefer-work.prefer-work',
+      'oneToMany',
+      'api::application.application'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::prefer-work.prefer-work',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::prefer-work.prefer-work',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    localizations: Attribute.Relation<
+      'api::prefer-work.prefer-work',
+      'oneToMany',
+      'api::prefer-work.prefer-work'
+    >;
+    locale: Attribute.String;
+  };
+}
+
+export interface ApiRequestFormRequestForm extends Schema.CollectionType {
+  collectionName: 'request_forms';
+  info: {
+    singularName: 'request-form';
+    pluralName: 'request-forms';
+    displayName: 'Request Form';
+    description: '';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    countComment: Attribute.Integer & Attribute.DefaultTo<0>;
+    description: Attribute.String & Attribute.DefaultTo<'headline'>;
+    status: Attribute.Enumeration<['Open', 'Progress', 'Close']> &
+      Attribute.Required &
+      Attribute.DefaultTo<'Open'>;
+    supporter: Attribute.Relation<
+      'api::request-form.request-form',
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
+    threadId: Attribute.String & Attribute.Required & Attribute.Unique;
+    user: Attribute.Relation<
+      'api::request-form.request-form',
+      'oneToOne',
+      'plugin::users-permissions.user'
+    >;
+    headline: Attribute.String & Attribute.Required;
+    note: Attribute.Text;
+    service_type: Attribute.Relation<
+      'api::request-form.request-form',
+      'oneToOne',
+      'api::service-type.service-type'
+    >;
+    serviceTypeKey: Attribute.String &
+      Attribute.Required &
+      Attribute.SetMinMaxLength<{
+        maxLength: 3;
+      }>;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::request-form.request-form',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::request-form.request-form',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiServiceTypeServiceType extends Schema.CollectionType {
+  collectionName: 'service_types';
+  info: {
+    singularName: 'service-type';
+    pluralName: 'service-types';
+    displayName: 'Service Type';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    serviceTypeKey: Attribute.Enumeration<['M', 'L', 'A', 'B', 'V', 'C']> &
+      Attribute.Required &
+      Attribute.DefaultTo<'M'>;
+    serviceTypeName: Attribute.String & Attribute.Required & Attribute.Unique;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::service-type.service-type',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::service-type.service-type',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiSystemParameterSystemParameter
+  extends Schema.CollectionType {
+  collectionName: 'system_parameters';
+  info: {
+    singularName: 'system-parameter';
+    pluralName: 'system-parameters';
+    displayName: 'System Parameter';
+    description: '';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    idCardFrontFolderId: Attribute.String;
+    healthCheckFolderId: Attribute.String;
+    policeCheckFolderId: Attribute.String;
+    koreanExamFolderId: Attribute.String;
+    passportFolderId: Attribute.String;
+    idCardBackFolderId: Attribute.String;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::system-parameter.system-parameter',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::system-parameter.system-parameter',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 declare module '@strapi/types' {
   export module Shared {
     export interface ContentTypes {
@@ -975,8 +1390,6 @@ declare module '@strapi/types' {
       'admin::api-token-permission': AdminApiTokenPermission;
       'admin::transfer-token': AdminTransferToken;
       'admin::transfer-token-permission': AdminTransferTokenPermission;
-      'api::request-form.request-form': ApiRequestFormRequestForm;
-      'api::service-type.service-type': ApiServiceTypeServiceType;
       'plugin::upload.file': PluginUploadFile;
       'plugin::upload.folder': PluginUploadFolder;
       'plugin::content-releases.release': PluginContentReleasesRelease;
@@ -985,6 +1398,15 @@ declare module '@strapi/types' {
       'plugin::users-permissions.permission': PluginUsersPermissionsPermission;
       'plugin::users-permissions.role': PluginUsersPermissionsRole;
       'plugin::users-permissions.user': PluginUsersPermissionsUser;
+      'api::application.application': ApiApplicationApplication;
+      'api::application-status.application-status': ApiApplicationStatusApplicationStatus;
+      'api::education.education': ApiEducationEducation;
+      'api::family-situation.family-situation': ApiFamilySituationFamilySituation;
+      'api::gender.gender': ApiGenderGender;
+      'api::prefer-work.prefer-work': ApiPreferWorkPreferWork;
+      'api::request-form.request-form': ApiRequestFormRequestForm;
+      'api::service-type.service-type': ApiServiceTypeServiceType;
+      'api::system-parameter.system-parameter': ApiSystemParameterSystemParameter;
     }
   }
 }

@@ -1,0 +1,48 @@
+{
+  "kind": "collectionType",
+  "collectionName": "application_statuses",
+  "info": {
+    "singularName": "application-status",
+    "pluralName": "application-statuses",
+    "displayName": "Application Status",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
+  "attributes": {
+    "name": {
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "type": "string",
+      "required": true,
+      "unique": false,
+      "maxLength": 55
+    },
+    "statusType": {
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "type": "string",
+      "required": true,
+      "unique": false,
+      "maxLength": 5
+    },
+    "applications": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::application.application",
+      "mappedBy": "application_status"
+    }
+  }
+}
