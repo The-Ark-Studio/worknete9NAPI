@@ -1,10 +1,11 @@
-// ./api/email/routes/email.js
+'use strict';
+
 module.exports = {
     routes: [
         {
             method: 'GET',
-            path: '/send-test-email',
-            handler: 'email.sendTestEmail',
+            path: '/application-configuration',
+            handler: 'application-configuration.find',
             config: {
                 policies: [],
                 middlewares: [],

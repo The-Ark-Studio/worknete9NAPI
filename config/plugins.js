@@ -31,5 +31,13 @@ module.exports = ({ env }) => ({
                 defaultReplyTo: env('SENDER_EMAIL'),
             },
         },
-    }
+    },
+    i18n: {
+        enabled: true,
+        config: {
+            defaultLocale: 'en',
+            locales: ['en', 'vi', 'ko-KR'], // Thêm các locale bạn muốn hỗ trợ
+        },
+    },
+
 });

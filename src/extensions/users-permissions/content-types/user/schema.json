@@ -150,6 +150,13 @@
       "relation": "oneToMany",
       "target": "api::application.application",
       "mappedBy": "checker"
+    },
+    "rememberFlag": {
+      "type": "boolean",
+      "default": false
+    },
+    "fcmToken": {
+      "type": "string"
     }
   }
 }

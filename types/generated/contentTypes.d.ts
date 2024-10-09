@@ -814,6 +814,8 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       'oneToMany',
       'api::application.application'
     >;
+    rememberFlag: Attribute.Boolean & Attribute.DefaultTo<false>;
+    fcmToken: Attribute.String;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -917,6 +919,7 @@ export interface ApiApplicationApplication extends Schema.CollectionType {
     deleteFlag: Attribute.Boolean &
       Attribute.Private &
       Attribute.DefaultTo<false>;
+    applicationOrder: Attribute.String & Attribute.Required & Attribute.Unique;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;

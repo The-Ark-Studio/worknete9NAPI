@@ -8,8 +8,7 @@
 const { createCoreController } = require('@strapi/strapi').factories;
 const cloudinary = require('cloudinary').v2;
 const axios = require('axios');
-const { sanitize } = require("@strapi/utils");
-
+const { v4: uuidv4 } = require('uuid');
 
 // Cấu hình Cloudinary
 cloudinary.config({
@@ -17,6 +16,29 @@ cloudinary.config({
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET,
 });
+
+// Hàm để tạo mã UID
+const generateUniqueUID = async () => {
+    // Lấy giá trị lớn nhất hiện có cho applicationOrder
+    const lastApplication = await strapi.entityService.findMany('api::application.application', {
+        sort: { applicationOrder: 'desc' }, // Sắp xếp theo applicationOrder giảm dần
+        pagination: { page: 1, pageSize: 1 }, // Chỉ lấy một kết quả
+    });
+
+    // Kiểm tra xem có đơn nào tồn tại không
+    if (lastApplication.length === 0) {
+        return 'E9V0000000001'; // Nếu chưa có đơn nào, trả về giá trị khởi tạo
+    } else if (lastApplication[0].applicationOrder === null)
+        return 'E9V0000000001';
+
+    const lastOrderNumber = lastApplication[0].applicationOrder;
+    const numericPart = parseInt(lastOrderNumber.slice(3), 10); // Lấy phần số sau 'E9V'
+
+    // Tăng số lên 1
+    const newNumericPart = (numericPart + 1).toString().padStart(15, '0'); // Đảm bảo có 15 chữ số
+
+    return `E9V${newNumericPart}`; // Trả về mã đơn mới
+};
 
 module.exports = createCoreController('api::application.application', ({ strapi }) => ({
     async create(ctx) {
@@ -141,6 +163,7 @@ module.exports = createCoreController('api::application.application', ({ strapi 
             });
 
             const applicationId = user + " - " + transactionId; // Dùng transactionId hoặc userId làm ID ứng dụng
+            const newApplicationOrder = await generateUniqueUID();
 
             // Upload hình ảnh lên Cloudinary với các thư mục tương ứng
             const uploadImage = async (file, cloudinaryFolder, strapiFolderId, fileName) => {
@@ -189,7 +212,6 @@ module.exports = createCoreController('api::application.application', ({ strapi 
 
             const passportImgUpload = await uploadImage(passportImg, `Applications/Passport/${applicationId}`, systemParameter.passportFolderId, applicationId);
 
-
             // Sau khi upload xong, lưu đường dẫn vào database
             const applicationData = {
                 user: user,
@@ -211,7 +233,8 @@ module.exports = createCoreController('api::application.application', ({ strapi 
                 policeCheckImg: policeCheckImgUpload[0].id,
                 koreanExamImg: koreanExamImgUpload[0].id,
                 passportImg: passportImgUpload[0].id,
-                checker: minChecker.id, // Gán checkerId vào dữ liệu hồ sơ
+                checker: minChecker.id, // Gán checkerId vào dữ liệu hồ sơ,
+                applicationOrder: newApplicationOrder
             };
 
             // Lưu dữ liệu vào Strapi
@@ -229,7 +252,7 @@ module.exports = createCoreController('api::application.application', ({ strapi 
             await strapi.plugins['email'].services.email.send({
                 to: existUser.email,  // Gửi tới email của Checker
                 subject: 'Application Created',
-                text: `The application has been created with ID ${response.id} `,
+                text: `The application has been created with ID ${applicationData.applicationOrder} `,
                 html: `<p>The application has been created: <strong>${process.env.FRONTEND_URL}</strong></p>`,
             });
 
@@ -270,6 +293,9 @@ module.exports = createCoreController('api::application.application', ({ strapi 
 
     async find(ctx) {
         try {
+            // Lấy locale từ request query
+            const { locale = 'en' } = ctx.query;
+            console.log(locale)
             // Lấy token từ header Authorization và parse để lấy userId
             const token = ctx.request.header.authorization.split(' ')[1];
             const decodedToken = await strapi.plugins['users-permissions'].services.jwt.verify(token);
@@ -286,16 +312,72 @@ module.exports = createCoreController('api::application.application', ({ strapi 
             if (user.role.type === 'checker') {
                 // Checker: trả về danh sách đơn mà Checker được gán
                 applications = await strapi.entityService.findMany('api::application.application', {
-                    filters: { checker: userId }
+                    filters: { user: userId },
+                    locale,
+                    populate: {
+                        application_status: {
+                            fields: ['statusType']
+                        },
+                        gender: {
+                            fields: ['key']
+                        },
+                        prefer_work: {
+                            fields: ['key']
+                        },
+                        education: {
+                            fields: ['key']
+                        },
+                        family_situation: {
+                            fields: ['key']
+                        },
+                    }
                 });
             } else if (user.role.type === 'worker') {
                 // Worker: trả về danh sách đơn mà Worker đã tạo
                 applications = await strapi.entityService.findMany('api::application.application', {
-                    filters: { user: userId }
+                    filters: { user: userId },
+                    populate: {
+                        application_status: {
+                            fields: ['statusType'],
+                        },
+                        gender: {
+                            fields: ['key']
+                        },
+                        prefer_work: {
+                            fields: ['key']
+                        },
+                        education: {
+                            fields: ['key']
+                        },
+                        family_situation: {
+                            fields: ['key']
+                        },
+                    }
                 });
             } else if (user.role.type === 'admin') {
                 // Worker: trả về danh sách đơn mà Worker đã tạo
-                applications = await strapi.entityService.findMany('api::application.application');
+                applications = await strapi.entityService.findMany('api::application.application',
+                    {
+                        locale,
+                        populate: {
+                            application_status: {
+                                fields: ['statusType']
+                            },
+                            gender: {
+                                fields: ['key']
+                            },
+                            prefer_work: {
+                                fields: ['key']
+                            },
+                            education: {
+                                fields: ['key']
+                            },
+                            family_situation: {
+                                fields: ['key']
+                            },
+                        }
+                    }
+                );
             } else {
                 return ctx.send({
                     error: true,
@@ -309,7 +391,7 @@ module.exports = createCoreController('api::application.application', ({ strapi 
                 error: false,
                 success: true,
                 message: 'Get all application successfully',
-                data: { applications },
+                data: applications,
             }, 200);
         } catch (error) {
             const errorsArray = [];
@@ -514,8 +596,8 @@ module.exports = createCoreController('api::application.application', ({ strapi 
             await strapi.plugins['email'].services.email.send({
                 to: application.user.email,  // Gửi tới email của Checker
                 subject: 'Application Updated',
-                text: `The application with ID ${id} has been updated`,
-                html: `<p>The application with ID <strong>${id}</strong> has been updated to status: <strong>${process.env.FRONTEND_URL}</strong></p>`,
+                text: `The application with ID ${application.applicationOrder} has been updated`,
+                html: `<p>The application with ID <strong>${application.applicationOrder}</strong> has been updated to status: <strong>${process.env.FRONTEND_URL}</strong></p>`,
             });
 
             return ctx.send({
@@ -558,10 +640,10 @@ module.exports = createCoreController('api::application.application', ({ strapi 
 
 async function checkTransactionId(transactionId) {
     try {
-        const response = await axios.get(`https://api-merchant.payos.vn/v2/payment-requests/${transactionId}`, {
+        const response = await axios.get(`${process.env.PAYOS_URL}/${transactionId}`, {
             headers: {
-                'x-client-id': '522a2a37-e631-4cf1-a968-a4e6b433816d', // Thay thế bằng giá trị thật
-                'x-api-key': '93930ef6-563f-427a-bcf8-452f539f62b4'      // Thay thế bằng giá trị thật
+                'x-client-id': process.env.PAYOS_CLIENT_ID, // Thay thế bằng giá trị thật
+                'x-api-key': process.env.PAYOS_API_KEY      // Thay thế bằng giá trị thật
             }
         });
 

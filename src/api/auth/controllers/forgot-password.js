@@ -1,4 +1,3 @@
-const { sanitizeEntity } = require('@strapi/utils');
 
 module.exports = {
     async forgotPassword(ctx) {
@@ -38,11 +37,24 @@ module.exports = {
 
             // Gửi email reset mật khẩu
             const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
-            await strapi.plugin('email').services.email.send({
-                to: user.email,
-                subject: 'Reset mật khẩu của bạn',
-                html: `<p>Click vào link dưới đây để reset mật khẩu của bạn:</p><a href="${resetUrl}">${resetUrl}</a>`,
-            });
+            // await strapi.plugin('email').services.email.send({
+            //     to: user.email,
+            //     subject: 'Reset mật khẩu của bạn',
+            //     html: `<p>Click vào link dưới đây để reset mật khẩu của bạn:</p><a href="${resetUrl}">${resetUrl}</a>`,
+            // });
+            await strapi.plugins['email'].services.email.sendTemplatedEmail(
+                {
+                    to: user.email,  // Email của người nhận
+                },
+                {
+                    template: 'resetPassword',  // Template resetPassword đã định nghĩa
+                    // subject: 'Reset your password', // Tiêu đề email
+                },
+                {
+                    URL: process.env.FRONTEND_URL,
+                    TOKEN: resetToken,  // Token để reset password
+                }
+            );
 
             // ctx.send({ message: 'Email reset mật khẩu đã được gửi' });
             return ctx.send({
