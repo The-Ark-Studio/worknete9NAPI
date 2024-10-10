@@ -122,7 +122,7 @@ module.exports = {
                 avatarImg: true         // Populate avatar nếu cần
             }
         });
-        console.log(user.role.permissions)
+        // console.log(user.role.permissions)
 
         if (!user) {
             return ctx.send({
