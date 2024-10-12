@@ -4,9 +4,8 @@ const serviceAccount = require('./firebase-adminsdk.json'); // Đường dẫn t
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
-    databaseURL: 'https://worknet-e9-default-rtdb.asia-southeast1.firebasedatabase.app/',
+    databaseURL: "https://e9-community-default-rtdb.asia-southeast1.firebasedatabase.app"
 });
-
 const chatRef = admin.database().ref('chats');
 
 module.exports = { chatRef };

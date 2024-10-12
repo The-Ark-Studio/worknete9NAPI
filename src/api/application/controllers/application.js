@@ -639,13 +639,16 @@ module.exports = createCoreController('api::application.application', ({ strapi 
 
 
 async function checkTransactionId(transactionId) {
+
     try {
         const response = await axios.get(`${process.env.PAYOS_URL}/${transactionId}`, {
             headers: {
                 'x-client-id': process.env.PAYOS_CLIENT_ID, // Thay thế bằng giá trị thật
                 'x-api-key': process.env.PAYOS_API_KEY      // Thay thế bằng giá trị thật
-            }
+            },
+            timeout: 5000 // 5 giây
         });
+
 
         const data = response.data.data;
 
