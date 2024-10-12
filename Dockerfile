@@ -81,22 +81,24 @@
 # Use the official Node.js image as a base
 FROM node:18
 
+# Install pnpm globally
+RUN npm install -g pnpm
+
 # Set the working directory
 WORKDIR /opt/e9/strapi
-# Install Strapi CLI
-RUN npm install -g strapi
 
-# Copy package.json and package-lock.json
-COPY package*.json ./
+# Copy package.json and pnpm-lock.yaml
+COPY package.json pnpm-lock.yaml ./
 
-# Install dependencies
-RUN npm install
+# Install dependencies using pnpm
+RUN pnpm install
 
 # Copy the rest of the application
 COPY . .
 
-# Expose port 2000
+# Expose port 3005
 EXPOSE 3005
 
 # Start Strapi
-CMD ["npm", "run", "start"]
+CMD ["pnpm", "start"]
+
