@@ -19,6 +19,7 @@
     "@strapi/strapi": "^4.25.9",
     "@strapi/utils": "^4.25.9",
     "axios": "^1.7.7",
+    "bcryptjs": "^2.4.3",
     "firebase-admin": "^12.5.0",
     "pg": "^8.12.0",
     "react": "^18.0.0",
