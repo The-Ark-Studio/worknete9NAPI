@@ -23,8 +23,8 @@ COPY . .
 # Expose port 3005
 EXPOSE 3005
 
-# Start Strapi
-CMD ["pnpm", "run", "start"]
+# Start Strapi in debug mode
+CMD ["pnpm", "run", "start", "--inspect"]
 
 
 

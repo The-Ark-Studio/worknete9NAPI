@@ -9,7 +9,7 @@ module.exports = [
       contentSecurityPolicy: {
         useDefaults: true,
         directives: {
-          'connect-src': ["'self'", 'https:'],
+          'connect-src': ["'self'", 'https:', 'http:', 'https://api-merchant.payos.vn/v2/payment-requests', 'http://api-merchant.payos.vn/v2/payment-requests'],
           'img-src': ["'self'", 'data:', 'blob:', 'market-assets.strapi.io', 'res.cloudinary.com'],
           'media-src': [
             "'self'",
