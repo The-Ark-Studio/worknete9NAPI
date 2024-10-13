@@ -21,7 +21,7 @@ cloudinary.config({
 const generateUniqueUID = async () => {
     // Lấy giá trị lớn nhất hiện có cho applicationOrder
     const lastApplication = await strapi.entityService.findMany('api::application.application', {
-        sort: { applicationOrder: 'desc' }, // Sắp xếp theo applicationOrder giảm dần
+        sort: { id: 'desc' }, // Sắp xếp theo applicationOrder giảm dần
         pagination: { page: 1, pageSize: 1 }, // Chỉ lấy một kết quả
     });
 

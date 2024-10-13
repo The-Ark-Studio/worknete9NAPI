@@ -11,13 +11,13 @@
     "deploy": "strapi deploy"
   },
   "dependencies": {
-    "@strapi/plugin-cloud": "4.25.11",
-    "@strapi/plugin-email": "^4.25.11",
-    "@strapi/plugin-i18n": "^4.25.12",
-    "@strapi/plugin-users-permissions": "4.25.11",
-    "@strapi/provider-upload-cloudinary": "^5.0.0",
-    "@strapi/strapi": "^4.5.6",
-    "@strapi/utils": "^4.25.11",
+    "@strapi/plugin-cloud": "^4.25.9",
+    "@strapi/plugin-email": "^4.25.12",
+    "@strapi/plugin-i18n": "^4.25.9",
+    "@strapi/plugin-users-permissions": "4.25.9",
+    "@strapi/provider-upload-cloudinary": "^4.25.9",
+    "@strapi/strapi": "^4.25.9",
+    "@strapi/utils": "^4.25.9",
     "axios": "^1.7.7",
     "firebase-admin": "^12.5.0",
     "pg": "^8.12.0",
@@ -25,9 +25,9 @@
     "react-dom": "^18.0.0",
     "react-router-dom": "5.3.4",
     "strapi-provider-email-brevo": "^1.0.4",
-    "styled-components": "5.3.3",
-    "uuid": "^10.0.0"
+    "styled-components": "5.3.3"
   },
+  "packageManager": "pnpm@9.1.1",
   "author": {
     "name": "A Strapi developer"
   },
