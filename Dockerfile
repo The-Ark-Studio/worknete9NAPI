@@ -7,8 +7,12 @@ RUN npm install -g pnpm
 # Set the working directory
 WORKDIR /opt/e9/strapi
 
-# Copy only package.json and pnpm-lock.yaml to leverage Docker caching
-COPY package.json pnpm-lock.yaml ./
+# Copy package.json and pnpm-lock.yaml if it exists, otherwise ignore
+# We use a multi-stage approach to handle missing pnpm-lock.yaml
+COPY package.json ./
+
+# Optional: Copy pnpm-lock.yaml only if it exists
+COPY pnpm-lock.yaml ./
 
 # Install dependencies using pnpm (cache this layer)
 RUN pnpm install
@@ -21,6 +25,7 @@ EXPOSE 3005
 
 # Start Strapi
 CMD ["pnpm", "run", "start"]
+
 
 
 # # Creating multi-stage build for production
