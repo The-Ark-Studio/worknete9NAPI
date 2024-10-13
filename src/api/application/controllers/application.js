@@ -8,7 +8,7 @@
 const { createCoreController } = require('@strapi/strapi').factories;
 // const cloudinary = require('cloudinary').v2;
 const axios = require('axios');
-const { v4: uuidv4 } = require('uuid');
+// const { v4: uuidv4 } = require('uuid');
 
 // Cấu hình Cloudinary
 // cloudinary.config({
