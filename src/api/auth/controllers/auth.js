@@ -94,6 +94,8 @@ module.exports = {
     },
 
     async signin(ctx) {
+        console.log("body: ", ctx.request.body);
+        console.log("header: ", ctx.request.header);
         const { userId, password, rememberFlag, fcmToken } = ctx.request.body;
 
         // Kiểm tra nếu phoneNumber và password có được cung cấp
