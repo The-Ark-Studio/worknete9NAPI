@@ -49,8 +49,8 @@ module.exports = {
             });
 
             return ctx.send({
-                error: true,
-                success: false,
+                error: false,
+                success: true,
                 message: 'Reset password succeed.',
                 data: null,
             }, 200);

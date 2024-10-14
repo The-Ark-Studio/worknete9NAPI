@@ -153,8 +153,8 @@ module.exports = {
 
         // Trả về token và thông tin người dùng
         return ctx.send({
-            error: true,
-            success: false,
+            error: false,
+            success: true,
             message: 'Login successfully',
             data: {
                 token: token,
@@ -235,8 +235,8 @@ module.exports = {
 
         // Trả về token và thông tin người dùng
         return ctx.send({
-            error: true,
-            success: false,
+            error: false,
+            success: true,
             message: 'Login successfully',
             data: {
                 token: token,

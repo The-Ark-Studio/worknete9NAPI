@@ -58,8 +58,8 @@ module.exports = {
 
             // ctx.send({ message: 'Email reset mật khẩu đã được gửi' });
             return ctx.send({
-                error: true,
-                success: false,
+                error: false,
+                success: true,
                 message: 'Email reset password has been sent.',
                 data: null,
             }, 200);
