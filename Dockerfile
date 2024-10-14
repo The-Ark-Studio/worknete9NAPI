@@ -24,7 +24,7 @@ COPY . .
 EXPOSE 3005
 
 # Start Strapi in debug mode
-CMD ["pnpm", "run", "start", "--", "--debug"]
+CMD ["DEBUG=strapi:*", "pnpm", "run", "start"]
 
 
 
