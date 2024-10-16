@@ -40,6 +40,23 @@ const generateUniqueUID = async () => {
     return `E9V${newNumericPart}`; // Trả về mã đơn mới
 };
 
+const formatDateForInvoiceCode = () => {
+    // Lấy ngày hiện tại (current date)
+    const date = new Date();
+
+    // Lấy giờ UTC
+    const hours = String(date.getUTCHours()).padStart(2, '0');
+
+    // Các phần khác giữ nguyên
+    const year = date.getUTCFullYear();
+    const monthNames = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+    const month = monthNames[date.getUTCMonth()];
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+
+    return `${year}${month}${day}-${hours}${minutes}`;
+};
+
 module.exports = createCoreController('api::application.application', ({ strapi }) => ({
     async create(ctx) {
         const defaultLocale = 'en';
@@ -163,7 +180,7 @@ module.exports = createCoreController('api::application.application', ({ strapi 
             });
 
             const applicationId = user + " - " + transactionId; // Dùng transactionId hoặc userId làm ID ứng dụng
-            const newApplicationOrder = await generateUniqueUID();
+            const newApplicationOrder = await formatDateForInvoiceCode();
 
             // Upload hình ảnh lên Cloudinary với các thư mục tương ứng
             const uploadImage = async (file, cloudinaryFolder, strapiFolderId, fileName) => {
