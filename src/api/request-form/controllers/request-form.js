@@ -1,6 +1,23 @@
 const { createCoreController } = require('@strapi/strapi').factories;
 const { chatRef } = require('../../../../config/firebase'); // Đường dẫn đến file firebase.js
 
+const formatDateForIDCode = () => {
+    // Lấy ngày hiện tại (current date)
+    const date = new Date();
+    const prefix = process.env.E9_PREFIX_UID;
+    // Lấy giờ UTC
+    const hours = String(date.getUTCHours()).padStart(2, '0');
+
+    // Các phần khác giữ nguyên
+    const year = date.getUTCFullYear();
+    const monthNames = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+    const month = monthNames[date.getUTCMonth()];
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+
+    return `${prefix}-${year}${month}${day}-${hours}${minutes}`;
+};
+
 module.exports = createCoreController('api::request-form.request-form', ({ strapi }) => ({
     // Giữ nguyên các phương thức mặc định
 
@@ -57,19 +74,22 @@ module.exports = createCoreController('api::request-form.request-form', ({ strap
 
             // Tạo một threadId duy nhất (UUID hoặc timestamp đơn giản)
             const threadId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+            const requestFormId = formatDateForIDCode();
 
             // Tạo request form với supporter đã chọn
             const newRequestForm = await strapi.db.query('api::request-form.request-form').create({
                 data: {
+                    requestFormId: requestFormId,
                     headline: headline,
                     description: description,
                     serviceTypeKey: serviceTypeKey,
                     note: '',
-                    status: 'O',  // Trạng thái mặc định: 'Open'
+                    status: 'Open',  // Trạng thái mặc định: 'Open'
                     user: userId,  // Người dùng tạo request
                     supporter: minSupporter.id,  // Supporter với count ít nhất
                     service_type: serviceTypeId,
-                    threadId: threadId,  // Thêm thread ID đã tạo
+                    threadId: threadId,  // Thêm thread ID đã tạo,
+                    publishedAt: new Date()
                 }
             });
 

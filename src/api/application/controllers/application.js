@@ -40,10 +40,10 @@ const generateUniqueUID = async () => {
     return `E9V${newNumericPart}`; // Trả về mã đơn mới
 };
 
-const formatDateForInvoiceCode = () => {
+const formatDateForInvoiceCode = (serviceTypeKey) => {
     // Lấy ngày hiện tại (current date)
     const date = new Date();
-
+    const prefix = process.env.CUSTOMER_SERVICE_PREFIX;
     // Lấy giờ UTC
     const hours = String(date.getUTCHours()).padStart(2, '0');
 
@@ -54,7 +54,7 @@ const formatDateForInvoiceCode = () => {
     const day = String(date.getUTCDate()).padStart(2, '0');
     const minutes = String(date.getUTCMinutes()).padStart(2, '0');
 
-    return `${year}${month}${day}-${hours}${minutes}`;
+    return `${prefix}${serviceTypeKey}-${year}${month}${day}-${hours}${minutes}`;
 };
 
 module.exports = createCoreController('api::application.application', ({ strapi }) => ({
@@ -312,7 +312,7 @@ module.exports = createCoreController('api::application.application', ({ strapi 
         try {
             // Lấy locale từ request query
             const { locale = 'en' } = ctx.query;
-            console.log(locale)
+            // console.log(locale)
             // Lấy token từ header Authorization và parse để lấy userId
             const token = ctx.request.header.authorization.split(' ')[1];
             const decodedToken = await strapi.plugins['users-permissions'].services.jwt.verify(token);

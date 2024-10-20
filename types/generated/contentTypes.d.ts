@@ -1291,10 +1291,10 @@ export interface ApiRequestFormRequestForm extends Schema.CollectionType {
       'api::service-type.service-type'
     >;
     serviceTypeKey: Attribute.String &
-      Attribute.Required &
       Attribute.SetMinMaxLength<{
         maxLength: 3;
       }>;
+    requestFormId: Attribute.String & Attribute.Unique;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;

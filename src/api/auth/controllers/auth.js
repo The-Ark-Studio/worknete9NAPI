@@ -4,6 +4,9 @@ module.exports = {
     async register(ctx) {
         const { email, phoneNumber, password } = ctx.request.body;
 
+        const defaultAvartarId = 329;
+        const defaultProvider = "local";
+
         // Check if all required fields are provided
         if (!email || !password || !phoneNumber) {
             return ctx.send({
@@ -49,6 +52,8 @@ module.exports = {
                 email,
                 password,
                 phoneNumber,
+                provider: defaultProvider,
+                avatarImg: defaultAvartarId,
                 username: 'userTemp', // Temporary username to satisfy validation
             });
 
@@ -94,8 +99,8 @@ module.exports = {
     },
 
     async signin(ctx) {
-        console.log("body: ", ctx.request.body);
-        console.log("header: ", ctx.request.header);
+        // console.log("body: ", ctx.request.body);
+        // console.log("header: ", ctx.request.header);
         const { userId, password, rememberFlag, fcmToken } = ctx.request.body;
 
         // Kiểm tra nếu phoneNumber và password có được cung cấp
@@ -169,6 +174,7 @@ module.exports = {
                     givenName: user.givenName,
                     gender: user.gender,
                     avatarImg: user.avatarImg.url,
+                    coonfirmed: true,
                     role: {
                         name: user.role.name,
                         // permission: actions

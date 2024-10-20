@@ -68,7 +68,11 @@
       "pluginOptions": {},
       "type": "string",
       "maxLength": 3,
-      "required": true
+      "required": false
+    },
+    "requestFormId": {
+      "type": "string",
+      "unique": true
     }
   }
 }

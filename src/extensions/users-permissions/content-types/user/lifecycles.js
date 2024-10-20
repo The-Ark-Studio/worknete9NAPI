@@ -33,7 +33,7 @@ async function assignDefaultAvatar(data) {
     // Kiểm tra role và giới tính của người dùng
     const userRole = data.role?.name || 'guest'; // Lấy role của user
     const gender = data.gender?.toLowerCase() || 'Male'; // Lấy giới tính của user (mặc định male)
-    console.log(userRole)
+    // console.log(userRole)
     // Gán avatar dựa trên role và giới tính
     switch (userRole) {
         case 'Worker':
