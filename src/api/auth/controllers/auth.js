@@ -207,7 +207,7 @@ module.exports = {
             populate: {
                 role: {
                     populate: {
-                        permissions: true,   // Populate permissions liên quan đến role
+                        permissions: false,   // Populate permissions liên quan đến role
                     }
                 },
                 avatarImg: true         // Populate avatar nếu cần
@@ -218,7 +218,7 @@ module.exports = {
             return ctx.send({
                 error: true,
                 success: false,
-                message: 'User not found.',
+                message: 'Checker not found.',
                 data: null,
             }, 404);
         }
@@ -237,7 +237,108 @@ module.exports = {
 
         // Tạo token JWT
         const token = strapi.plugins['users-permissions'].services.jwt.issue({ id: user.id });
-        const actions = user.role.permissions.map(permission => permission.action);
+        console.log('perms:  ', user.role)
+        // const actions = user.role.permissions.map(permission => permission.action);
+
+        if (user.role.type !== "checker") {
+            return ctx.send({
+                error: true,
+                success: false,
+                message: 'Invalid checker.',
+                data: null,
+            }, 401);
+        }
+
+        // Trả về token và thông tin người dùng
+        return ctx.send({
+            error: false,
+            success: true,
+            message: 'Login successfully',
+            data: {
+                token: token,
+                rememberFlag: rememberFlag,
+                user: {
+                    id: user.id,
+                    username: user.username,
+                    phoneNumber: user.phoneNumber,
+                    email: user.email,
+                    name: user.name,
+                    givenName: user.givenName,
+                    gender: user.gender,
+                    avatarImg: user.avatarImg.url,
+                    role: {
+                        name: user.role.name,
+                        // permission: actions
+                    }
+                }
+            },
+        }, 200);
+    },
+
+    async signinCustomerSupporter(ctx) {
+        const { email, password, rememberFlag, fcmToken } = ctx.request.body;
+
+        // Kiểm tra nếu email và password có được cung cấp
+        if (!email || !password) {
+            return ctx.send({
+                error: true,
+                success: false,
+                message: 'Email and Password are required.',
+                data: null,
+            }, 400);
+        }
+
+        // Tìm người dùng theo số điện thoại
+        const user = await strapi.query('plugin::users-permissions.user').findOne({
+            where: {
+                email: email,
+                status: 'Active',
+                blocked: false
+            },
+            populate: {
+                role: {
+                    populate: {
+                        permissions: false,   // Populate permissions liên quan đến role
+                    }
+                },
+                avatarImg: true         // Populate avatar nếu cần
+            }
+        });
+
+        if (!user) {
+            return ctx.send({
+                error: true,
+                success: false,
+                message: 'Customer Supporter not found.',
+                data: null,
+            }, 404);
+        }
+
+        // Xác thực password
+        const validPassword = await strapi.plugins['users-permissions'].services.user.validatePassword(password, user.password);
+
+        if (!validPassword) {
+            return ctx.send({
+                error: true,
+                success: false,
+                message: 'Invalid password.',
+                data: null,
+            }, 400);
+        }
+
+        // Tạo token JWT
+        const token = strapi.plugins['users-permissions'].services.jwt.issue({ id: user.id });
+        console.log('perms:  ', user.role)
+        // const actions = user.role.permissions.map(permission => permission.action);
+
+        if (user.role.type !== "supporter") {
+            return ctx.send({
+                error: true,
+                success: false,
+                message: 'Invalid supporter.',
+                data: null,
+            }, 401);
+        }
 
         // Trả về token và thông tin người dùng
         return ctx.send({

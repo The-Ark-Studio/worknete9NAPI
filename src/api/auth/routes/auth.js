@@ -19,8 +19,16 @@ module.exports = {
         },
         {
             method: "POST",
-            path: "/auth/admin/signin",
+            path: "/auth/checker/signin",
             handler: "auth.signinChecker",
+            config: {
+                policies: []
+            }
+        },
+        {
+            method: "POST",
+            path: "/auth/supporter/signin",
+            handler: "auth.signinCustomerSupporter",
             config: {
                 policies: []
             }
