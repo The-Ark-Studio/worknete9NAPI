@@ -21,7 +21,7 @@ const formatDateForIDCode = () => {
 module.exports = createCoreController('api::request-form.request-form', ({ strapi }) => ({
     // Giữ nguyên các phương thức mặc định
 
-    async createRequestForm(ctx) {
+    async create(ctx) {
         const { headline, description, serviceTypeKey, userId } = ctx.request.body;
 
         try {
@@ -82,7 +82,7 @@ module.exports = createCoreController('api::request-form.request-form', ({ strap
                     requestFormId: requestFormId,
                     headline: headline,
                     description: description,
-                    serviceTypeKey: serviceTypeKey,
+                    // serviceTypeKey: serviceTypeKey,
                     note: '',
                     status: 'Open',  // Trạng thái mặc định: 'Open'
                     user: userId,  // Người dùng tạo request
@@ -157,6 +157,329 @@ module.exports = createCoreController('api::request-form.request-form', ({ strap
                 error: true,
                 success: false,
                 message: 'Failed to create request form',
+                data: errorsArray // Gửi mảng lỗi
+            }, 500);
+        }
+    },
+
+    async find(ctx) {
+        try {
+            // Lấy locale từ request query
+            const { locale = 'en' } = ctx.query;
+            // console.log(locale)
+            // Lấy token từ header Authorization và parse để lấy userId
+            const token = ctx.request.header.authorization.split(' ')[1];
+            const decodedToken = await strapi.plugins['users-permissions'].services.jwt.verify(token);
+            const userId = decodedToken.id;
+
+            // Tìm kiếm thông tin người dùng để lấy role
+            const user = await strapi.query('plugin::users-permissions.user').findOne({
+                where: { id: userId },
+                populate: ['role']
+            });
+
+            let requestForms;
+
+            if (user.role.type === 'supporter') {
+                // Supporter: trả về danh sách đơn mà Supporter được gán
+                requestForms = await strapi.entityService.findMany('api::request-form.request-form', {
+                    filters: { supporter: userId },
+                    locale,
+                    populate: {
+                        serviceType: {
+                            fields: ['serviceTypeKey']
+                        },
+                        user: {
+                            fields: ['phoneNumber']
+                        },
+                    }
+                });
+            } else if (user.role.type === 'worker') {
+                // Worker: trả về danh sách đơn mà Worker đã tạo
+                requestForms = await strapi.entityService.findMany('api::request-form.request-form', {
+                    filters: { user: userId },
+                    populate: {
+                        serviceType: {
+                            fields: ['serviceTypeKey']
+                        },
+                        user: {
+                            fields: ['phoneNumber']
+                        },
+                    }
+                });
+            } else if (user.role.type === 'admin') {
+                // Worker: trả về danh sách đơn mà Worker đã tạo
+                requestForms = await strapi.entityService.findMany('api::request-form.request-form',
+                    {
+                        locale,
+                        populate: {
+                            serviceType: {
+                                fields: ['serviceTypeKey']
+                            },
+                            user: {
+                                fields: ['phoneNumber']
+                            },
+                        }
+                    }
+                );
+            } else {
+                return ctx.send({
+                    error: true,
+                    success: false,
+                    message: 'Unauthorized access',
+                }, 401);
+            }
+
+            // Trả về dữ liệu
+            return ctx.send({
+                error: false,
+                success: true,
+                message: 'Get all request forms successfully',
+                data: requestForms,
+            }, 200);
+        } catch (error) {
+            const errorsArray = [];
+
+            // Kiểm tra nếu có nhiều lỗi trong error.details
+            if (error.details && error.details.errors) {
+                error.details.errors.forEach((err) => {
+                    // Thêm thông tin lỗi vào mảng
+                    errorsArray.push({
+                        message: err.message,
+                        path: err.path || [] // Đường dẫn đến trường bị lỗi (nếu có)
+                    });
+                });
+            } else {
+                // Nếu không có thông tin chi tiết, thêm lỗi chung
+                errorsArray.push({ message: error.message });
+            }
+
+            // Trả về phản hồi chứa các lỗi
+            return ctx.send({
+                error: true,
+                success: false,
+                message: 'Failed to get applications',
+                data: errorsArray // Gửi mảng lỗi
+            }, 500);
+        }
+    },
+
+    async findOne(ctx) {
+        await this.validateQuery(ctx);
+        try {
+            const { id } = ctx.params; // Lấy id của Application từ request params
+            const token = ctx.request.header.authorization.split(' ')[1];
+            const decodedToken = await strapi.plugins['users-permissions'].services.jwt.verify(token);
+            const userId = decodedToken.id;
+
+            // Lấy thông tin đơn theo ID
+            const requestForm = await strapi.entityService.findOne(
+                'api::request-form.request-form',
+                id,
+                {
+                    populate: {
+                        supporter: {
+                            fields: ['phoneNumber']
+                        }, user: {
+                            fields: ['phoneNumber']
+                        },
+                    }, // Populate để lấy các quan hệ nếu cần
+                }
+            );
+
+            if (!requestForm) {
+                return ctx.send({
+                    error: true,
+                    success: false,
+                    message: 'Request Form not founds',
+                }, 404);
+            }
+
+            // Tìm kiếm thông tin người dùng để lấy role
+            const user = await strapi.entityService.findOne('plugin::users-permissions.user', userId, {
+                populate: ['role'],
+            });
+
+            if (
+                (user.role.type === 'supporter' && requestForm.supporter.id === userId) ||
+                (user.role.type === 'worker' && requestForm.user.id === userId)
+            ) {
+                // Chỉ lấy thông tin cần thiết từ checker
+                const checkerInfo = {
+                    email: requestForm.supporter.email,
+                    phoneNumber: requestForm.supporter.phoneNumber,
+                    name: requestForm.supporter.name,
+                    givenName: requestForm.supporter.givenName,
+                    companyName: requestForm.supporter.companyName,
+                    location: requestForm.supporter.location,
+                    establishYear: requestForm.supporter.establishYear,
+                };
+                // Sanitize thông tin
+                const sanitizedApplication = await this.sanitizeOutput(requestForm, ctx);
+
+
+                // Trả về dữ liệu
+                return ctx.send({
+                    error: false,
+                    success: true,
+                    message: 'Get request form successfully',
+                    data: {
+                        requestForm: {
+                            ...sanitizedApplication,
+                            supporter: checkerInfo
+                        }
+                    },
+                }, 200);
+            } else {
+                return ctx.send({
+                    error: true,
+                    success: false,
+                    message: 'Unauthorized access',
+                }, 401);
+            }
+        } catch (error) {
+            const errorsArray = [];
+
+            // Kiểm tra nếu có nhiều lỗi trong error.details
+            if (error.details && error.details.errors) {
+                error.details.errors.forEach((err) => {
+                    // Thêm thông tin lỗi vào mảng
+                    errorsArray.push({
+                        message: err.message,
+                        path: err.path || [] // Đường dẫn đến trường bị lỗi (nếu có)
+                    });
+                });
+            } else {
+                // Nếu không có thông tin chi tiết, thêm lỗi chung
+                errorsArray.push({ message: error.message });
+            }
+
+            // Trả về phản hồi chứa các lỗi
+            return ctx.send({
+                error: true,
+                success: false,
+                message: 'Failed to get applications',
+                data: errorsArray // Gửi mảng lỗi
+            }, 500);
+        }
+    },
+
+    async update(ctx) {
+        // Xác thực dữ liệu đầu vào
+        await this.validateQuery(ctx); // Xác thực dữ liệu trong yêu cầu
+        try {
+            const defaultLocale = 'en';
+            const { id } = ctx.params; // Lấy id của Application từ request params
+            const token = ctx.request.header.authorization.split(' ')[1];
+            const decodedToken = await strapi.plugins['users-permissions'].services.jwt.verify(token);
+            const userId = decodedToken.id;
+
+            // Tìm kiếm thông tin người dùng để lấy role
+            const user = await strapi.query('plugin::users-permissions.user').findOne({
+                where: { id: userId },
+                populate: ['role']
+            });
+
+            if (user.role.type !== 'checker') {
+                return ctx.send({
+                    error: true,
+                    success: false,
+                    message: 'Only Checkers can update applications',
+                }, 401);
+            }
+
+            // Lấy thông tin đơn theo ID
+            const application = await strapi.entityService.findOne(
+                'api::request-form.request-form',
+                id,
+                {
+                    populate: { checker: true, user: true }, // Populate để lấy các quan hệ nếu cần
+                }
+            );
+
+            if (!application) {
+                return ctx.send({
+                    error: true,
+                    success: false,
+                    message: 'Application not founds',
+                }, 404);
+            }
+
+            // Chỉ Checker được gán ứng dụng này mới có quyền cập nhật
+            if (application.checker.id !== userId) {
+                return ctx.send({
+                    error: true,
+                    success: false,
+                    message: 'You are not assigned to this application',
+                }, 401);
+            }
+
+            // Chỉ cập nhật các field status và note
+            const { status, note } = ctx.request.body;
+
+            // Tìm application status
+            const existApplicationStatus = await strapi.db.query('api::application-status.application-status').findOne({ where: { statusType: status, locale: defaultLocale } })
+
+            if (!existApplicationStatus) {
+                console.log('Application status is not found')
+                return ctx.send({
+                    error: true,
+                    success: false,
+                    message: 'Application status is invalid or not exist.',
+                    data: null,
+                }, 404);
+            }
+
+            // Cập nhật ứng dụng
+            const updatedApplication = await strapi.entityService.update(
+                'api::request-form.request-form',
+                id,
+                {
+                    data: {
+                        application_status: existApplicationStatus.id,
+                        note
+                    }
+                }
+            );
+
+            // Gửi email sau khi cập nhật thành công
+            await strapi.plugins['email'].services.email.send({
+                to: application.user.email,  // Gửi tới email của Checker
+                subject: 'Application Updated',
+                text: `The application with ID ${application.applicationOrder} has been updated`,
+                html: `<p>The application with ID <strong>${application.applicationOrder}</strong> has been updated to status: <strong>${process.env.FRONTEND_URL}</strong></p>`,
+            });
+
+            return ctx.send({
+                error: false,
+                success: true,
+                message: 'Get application successfully',
+                data: {
+                    updatedApplication
+                },
+            }, 200);;
+        } catch (error) {
+            const errorsArray = [];
+
+            // Kiểm tra nếu có nhiều lỗi trong error.details
+            if (error.details && error.details.errors) {
+                error.details.errors.forEach((err) => {
+                    // Thêm thông tin lỗi vào mảng
+                    errorsArray.push({
+                        message: err.message,
+                        path: err.path || [] // Đường dẫn đến trường bị lỗi (nếu có)
+                    });
+                });
+            } else {
+                // Nếu không có thông tin chi tiết, thêm lỗi chung
+                errorsArray.push({ message: error.message });
+            }
+
+            // Trả về phản hồi chứa các lỗi
+            return ctx.send({
+                error: true,
+                success: false,
+                message: 'Unable to update application',
                 data: errorsArray // Gửi mảng lỗi
             }, 500);
         }

@@ -237,7 +237,7 @@ module.exports = {
 
         // Tạo token JWT
         const token = strapi.plugins['users-permissions'].services.jwt.issue({ id: user.id });
-        console.log('perms:  ', user.role)
+        // console.log('perms:  ', user.role)
         // const actions = user.role.permissions.map(permission => permission.action);
 
         if (user.role.type !== "checker") {
@@ -328,7 +328,7 @@ module.exports = {
 
         // Tạo token JWT
         const token = strapi.plugins['users-permissions'].services.jwt.issue({ id: user.id });
-        console.log('perms:  ', user.role)
+        // console.log('perms:  ', user.role)
         // const actions = user.role.permissions.map(permission => permission.action);
 
         if (user.role.type !== "supporter") {

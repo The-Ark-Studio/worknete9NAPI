@@ -64,12 +64,6 @@
       "relation": "oneToOne",
       "target": "api::service-type.service-type"
     },
-    "serviceTypeKey": {
-      "pluginOptions": {},
-      "type": "string",
-      "maxLength": 3,
-      "required": false
-    },
     "requestFormId": {
       "type": "string",
       "unique": true

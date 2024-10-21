@@ -1290,10 +1290,6 @@ export interface ApiRequestFormRequestForm extends Schema.CollectionType {
       'oneToOne',
       'api::service-type.service-type'
     >;
-    serviceTypeKey: Attribute.String &
-      Attribute.SetMinMaxLength<{
-        maxLength: 3;
-      }>;
     requestFormId: Attribute.String & Attribute.Unique;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;

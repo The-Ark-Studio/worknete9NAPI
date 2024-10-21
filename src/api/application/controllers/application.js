@@ -329,7 +329,7 @@ module.exports = createCoreController('api::application.application', ({ strapi 
             if (user.role.type === 'checker') {
                 // Checker: trả về danh sách đơn mà Checker được gán
                 applications = await strapi.entityService.findMany('api::application.application', {
-                    filters: { user: userId },
+                    filters: { checker: userId },
                     locale,
                     populate: {
                         application_status: {
